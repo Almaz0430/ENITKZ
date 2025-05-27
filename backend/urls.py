@@ -20,6 +20,8 @@ from django.conf import settings
 from django.conf.urls.static import static
 from rest_framework.routers import DefaultRouter
 from drf_spectacular.views import SpectacularAPIView, SpectacularRedocView, SpectacularSwaggerView
+from django.views.decorators.csrf import ensure_csrf_cookie
+from django.http import JsonResponse
 
 from users.views import UserViewSet
 from education.views import (
@@ -35,6 +37,10 @@ router.register(r'accreditations', AccreditationViewSet)
 router.register(r'publications', PublicationViewSet)
 router.register(r'mobility-programs', MobilityProgramViewSet)
 
+@ensure_csrf_cookie
+def get_csrf_token(request):
+    return JsonResponse({'detail': 'CSRF cookie set'})
+
 urlpatterns = [
     path('admin/', admin.site.urls),
     
@@ -45,10 +51,15 @@ urlpatterns = [
     # Регистрация ВУЗа (отдельный URL для удобства)
     path('api/register-university/', UserViewSet.as_view({'post': 'register_university'}), name='register-university'),
     
+    # Логин (отдельный URL для удобства)
+    path('api/users/login/', UserViewSet.as_view({'post': 'login'}), name='login'),
+    
     # API документация
     path('api/schema/', SpectacularAPIView.as_view(), name='schema'),
     path('api/schema/swagger-ui/', SpectacularSwaggerView.as_view(url_name='schema'), name='swagger-ui'),
     path('api/schema/redoc/', SpectacularRedocView.as_view(url_name='schema'), name='redoc'),
+    
+    path('api/csrf/', get_csrf_token, name='csrf'),
 ]
 
 # Добавление URL для медиа-файлов в режиме разработки

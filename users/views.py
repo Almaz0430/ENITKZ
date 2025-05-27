@@ -6,6 +6,8 @@ from django.contrib.auth import login, logout, get_user_model
 from django.utils.crypto import get_random_string
 from django.core.mail import send_mail
 from django.conf import settings
+from django.views.decorators.csrf import ensure_csrf_cookie
+from django.utils.decorators import method_decorator
 from .models import PasswordResetToken
 from .serializers import (
     UserSerializer, UserCreateSerializer, UniversityCreateSerializer, LoginSerializer,
@@ -15,7 +17,7 @@ from .serializers import (
 
 User = get_user_model()
 
-
+@method_decorator(ensure_csrf_cookie, name='dispatch')
 class UserViewSet(viewsets.ModelViewSet):
     """ViewSet для работы с пользователями."""
     
@@ -26,7 +28,7 @@ class UserViewSet(viewsets.ModelViewSet):
         """Определяет права доступа в зависимости от действия."""
         if self.action in ['create', 'register_university', 'login', 'reset_password_request', 'reset_password_confirm']:
             permission_classes = [permissions.AllowAny]
-        elif self.action in ['retrieve', 'update', 'partial_update', 'change_password']:
+        elif self.action in ['retrieve', 'update', 'partial_update', 'change_password', 'me', 'logout']:
             permission_classes = [permissions.IsAuthenticated]
         else:
             permission_classes = [permissions.IsAdminUser]
@@ -48,37 +50,37 @@ class UserViewSet(viewsets.ModelViewSet):
             return PasswordChangeSerializer
         return self.serializer_class
     
+    @action(detail=False, methods=['get'])
+    def me(self, request):
+        """Получение информации о текущем пользователе."""
+        serializer = self.get_serializer(request.user)
+        return Response(serializer.data)
+    
     @action(detail=False, methods=['post'])
     def register_university(self, request):
         """Регистрация нового ВУЗа."""
         serializer = self.get_serializer(data=request.data)
-        serializer.is_valid(raise_exception=True)
-        user = serializer.save()
-        
-        # Автоматическая аутентификация после регистрации
-        login(request, user)
-        
-        headers = self.get_success_headers(serializer.data)
-        return Response(
-            UserSerializer(user).data,
-            status=status.HTTP_201_CREATED,
-            headers=headers
-        )
-    
-    @action(detail=False, methods=['post'])
-    def login(self, request):
-        """Аутентификация пользователя."""
-        serializer = self.get_serializer(data=request.data)
-        serializer.is_valid(raise_exception=True)
-        user = serializer.validated_data['user']
-        login(request, user)
-        return Response(UserSerializer(user).data)
+        if serializer.is_valid():
+            user = serializer.save()
+            return Response({
+                'user': UserSerializer(user).data,
+                'message': 'ВУЗ успешно зарегистрирован'
+            }, status=status.HTTP_201_CREATED)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
     
     @action(detail=False, methods=['post'])
     def logout(self, request):
         """Выход пользователя."""
+        if not request.user.is_authenticated:
+            return Response(
+                {"detail": "Пользователь не аутентифицирован."},
+                status=status.HTTP_401_UNAUTHORIZED
+            )
+        
         logout(request)
-        return Response({"detail": "Успешный выход из системы."})
+        response = Response({"detail": "Успешный выход из системы."})
+        response.delete_cookie('sessionid')  # Удаляем cookie сессии
+        return response
     
     @action(detail=False, methods=['post'])
     def reset_password_request(self, request):
@@ -149,3 +151,17 @@ class UserViewSet(viewsets.ModelViewSet):
             status=status.HTTP_201_CREATED,
             headers=headers
         )
+
+    @action(detail=False, methods=['post'], permission_classes=[permissions.AllowAny])
+    def login(self, request):
+        """Аутентификация пользователя."""
+        serializer = self.get_serializer(data=request.data)
+        if serializer.is_valid():
+            user = serializer.validated_data['user']
+            login(request, user)
+            response = Response({
+                'user': UserSerializer(user).data,
+                'message': 'Успешный вход в систему'
+            })
+            return response
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)

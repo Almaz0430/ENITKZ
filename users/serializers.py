@@ -74,13 +74,14 @@ class LoginSerializer(serializers.Serializer):
         password = attrs.get('password')
         
         if email and password:
-            user = authenticate(request=self.context.get('request'), username=email, password=password)
-            if not user:
-                msg = _('Невозможно войти с предоставленными учетными данными.')
-                raise serializers.ValidationError(msg, code='authorization')
+            try:
+                user = User.objects.get(email=email)
+                if not user.check_password(password):
+                    raise serializers.ValidationError(_('Невозможно войти с предоставленными учетными данными.'))
+            except User.DoesNotExist:
+                raise serializers.ValidationError(_('Невозможно войти с предоставленными учетными данными.'))
         else:
-            msg = _('Должны быть указаны "email" и "password".')
-            raise serializers.ValidationError(msg, code='authorization')
+            raise serializers.ValidationError(_('Должны быть указаны "email" и "password".'))
         
         attrs['user'] = user
         return attrs

@@ -43,6 +43,7 @@ INSTALLED_APPS = [
     
     # Сторонние приложения
     'rest_framework',
+    'rest_framework.authtoken',
     'corsheaders',
     'drf_spectacular',
     
@@ -145,17 +146,61 @@ AUTH_USER_MODEL = 'users.User'
 REST_FRAMEWORK = {
     'DEFAULT_AUTHENTICATION_CLASSES': (
         'rest_framework.authentication.SessionAuthentication',
-        'rest_framework.authentication.BasicAuthentication',
+        'rest_framework.authentication.TokenAuthentication',
     ),
     'DEFAULT_PERMISSION_CLASSES': [
         'rest_framework.permissions.IsAuthenticated',
     ],
     'DEFAULT_SCHEMA_CLASS': 'drf_spectacular.openapi.AutoSchema',
+    'UNAUTHENTICATED_USER': None,
 }
 
 # Настройки CORS
-CORS_ALLOW_ALL_ORIGINS = True  # Только для разработки, в продакшене нужно указать конкретные домены
+CORS_ALLOWED_ORIGINS = [
+    "http://localhost:5173",
+    "http://127.0.0.1:5173",
+]
 CORS_ALLOW_CREDENTIALS = True
+CORS_ALLOW_METHODS = [
+    'DELETE',
+    'GET',
+    'OPTIONS',
+    'PATCH',
+    'POST',
+    'PUT',
+]
+CORS_ALLOW_HEADERS = [
+    'accept',
+    'accept-encoding',
+    'authorization',
+    'content-type',
+    'dnt',
+    'origin',
+    'user-agent',
+    'x-csrftoken',
+    'x-requested-with',
+]
+CORS_EXPOSE_HEADERS = ['Content-Type', 'X-CSRFToken']
+CORS_PREFLIGHT_MAX_AGE = 86400  # 24 часа
+
+# Настройки CSRF и сессий
+CSRF_TRUSTED_ORIGINS = [
+    "http://localhost:5173",
+    "http://127.0.0.1:5173",
+]
+CSRF_COOKIE_SAMESITE = 'Lax'
+SESSION_COOKIE_SAMESITE = 'Lax'
+CSRF_COOKIE_HTTPONLY = False
+CSRF_USE_SESSIONS = False
+CSRF_COOKIE_SECURE = False  # В продакшене должно быть True
+SESSION_COOKIE_SECURE = False  # В продакшене должно быть True
+CSRF_COOKIE_NAME = 'csrftoken'
+SESSION_COOKIE_NAME = 'sessionid'
+
+# Настройки сессий
+SESSION_ENGINE = 'django.contrib.sessions.backends.db'
+SESSION_COOKIE_AGE = 1209600  # 2 недели
+SESSION_SAVE_EVERY_REQUEST = True
 
 # Настройки Spectacular для документации API
 SPECTACULAR_SETTINGS = {
@@ -170,4 +215,4 @@ EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'  # Для ра�
 DEFAULT_FROM_EMAIL = 'noreply@example.com'
 
 # URL фронтенда для формирования ссылок
-FRONTEND_URL = 'http://localhost:3000'  # Изменить на реальный URL в продакшене
+FRONTEND_URL = 'http://localhost:5173'  # Изменить на реальный URL в продакшене
