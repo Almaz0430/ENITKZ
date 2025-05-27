@@ -22,6 +22,7 @@ from rest_framework.routers import DefaultRouter
 from drf_spectacular.views import SpectacularAPIView, SpectacularRedocView, SpectacularSwaggerView
 from django.views.decorators.csrf import ensure_csrf_cookie
 from django.http import JsonResponse
+from django.views.generic import TemplateView
 
 from users.views import UserViewSet
 from education.views import (
@@ -42,6 +43,7 @@ def get_csrf_token(request):
     return JsonResponse({'detail': 'CSRF cookie set'})
 
 urlpatterns = [
+    path('', TemplateView.as_view(template_name="index.html")),  # Главная страница
     path('admin/', admin.site.urls),
     
     # API URLs
