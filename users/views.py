@@ -6,7 +6,7 @@ from django.contrib.auth import login, logout, get_user_model
 from django.utils.crypto import get_random_string
 from django.core.mail import send_mail
 from django.conf import settings
-from django.views.decorators.csrf import ensure_csrf_cookie
+from django.views.decorators.csrf import ensure_csrf_cookie, csrf_exempt
 from django.utils.decorators import method_decorator
 from .models import PasswordResetToken
 from .serializers import (
@@ -68,6 +68,7 @@ class UserViewSet(viewsets.ModelViewSet):
             }, status=status.HTTP_201_CREATED)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
     
+    @method_decorator(csrf_exempt)
     @action(detail=False, methods=['post'])
     def logout(self, request):
         """Выход пользователя."""
