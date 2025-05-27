@@ -192,7 +192,6 @@ CORS_ALLOWED_ORIGINS = [
     "http://localhost:5173",
     "http://127.0.0.1:5173",
     "https://web-production-f185.up.railway.app",
-    "http://web-production-f185.up.railway.app",
 ]
 CORS_ALLOW_CREDENTIALS = True
 CORS_ALLOW_METHODS = [
@@ -213,11 +212,6 @@ CORS_ALLOW_HEADERS = [
     'user-agent',
     'x-csrftoken',
     'x-requested-with',
-    'x-csrf-token',
-    'x-xsrf-token',
-    'access-control-allow-origin',
-    'access-control-allow-headers',
-    'access-control-allow-methods',
 ]
 CORS_EXPOSE_HEADERS = ['Content-Type', 'X-CSRFToken']
 CORS_PREFLIGHT_MAX_AGE = 86400  # 24 часа
@@ -227,12 +221,11 @@ CSRF_TRUSTED_ORIGINS = [
     "http://localhost:5173",
     "http://127.0.0.1:5173",
     "https://web-production-f185.up.railway.app",
-    "http://web-production-f185.up.railway.app",
 ]
-CSRF_COOKIE_SAMESITE = 'Lax'
-SESSION_COOKIE_SAMESITE = 'Lax'
-CSRF_COOKIE_HTTPONLY = False
-CSRF_USE_SESSIONS = True
+CSRF_COOKIE_SAMESITE = 'None'
+SESSION_COOKIE_SAMESITE = 'None'
+CSRF_COOKIE_HTTPONLY = True
+CSRF_USE_SESSIONS = False
 CSRF_COOKIE_SECURE = True
 SESSION_COOKIE_SECURE = True
 CSRF_COOKIE_NAME = 'csrftoken'

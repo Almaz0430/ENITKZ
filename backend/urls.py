@@ -20,7 +20,7 @@ from django.conf import settings
 from django.conf.urls.static import static
 from rest_framework.routers import DefaultRouter
 from drf_spectacular.views import SpectacularAPIView, SpectacularRedocView, SpectacularSwaggerView
-from django.views.decorators.csrf import ensure_csrf_cookie
+from django.views.decorators.csrf import ensure_csrf_cookie, csrf_exempt
 from django.http import JsonResponse
 from django.views.generic import TemplateView
 
@@ -55,6 +55,9 @@ urlpatterns = [
     
     # Логин (отдельный URL для удобства)
     path('api/users/login/', UserViewSet.as_view({'post': 'login'}), name='login'),
+    
+    # Выход из системы (отдельный URL с отключенным CSRF)
+    path('api/users/logout/', csrf_exempt(UserViewSet.as_view({'post': 'logout'})), name='logout'),
     
     # API документация
     path('api/schema/', SpectacularAPIView.as_view(), name='schema'),
