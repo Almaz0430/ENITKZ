@@ -6,7 +6,7 @@ from django.contrib.auth import login, logout, get_user_model
 from django.utils.crypto import get_random_string
 from django.core.mail import send_mail
 from django.conf import settings
-from django.views.decorators.csrf import ensure_csrf_cookie, csrf_exempt
+from django.views.decorators.csrf import ensure_csrf_cookie
 from django.utils.decorators import method_decorator
 from .models import PasswordResetToken
 from .serializers import (
@@ -26,9 +26,9 @@ class UserViewSet(viewsets.ModelViewSet):
     
     def get_permissions(self):
         """Определяет права доступа в зависимости от действия."""
-        if self.action in ['create', 'register_university', 'login', 'reset_password_request', 'reset_password_confirm', 'logout']:
+        if self.action in ['create', 'register_university', 'login', 'reset_password_request', 'reset_password_confirm']:
             permission_classes = [permissions.AllowAny]
-        elif self.action in ['retrieve', 'update', 'partial_update', 'change_password', 'me']:
+        elif self.action in ['retrieve', 'update', 'partial_update', 'change_password', 'me', 'logout']:
             permission_classes = [permissions.IsAuthenticated]
         else:
             permission_classes = [permissions.IsAdminUser]
@@ -69,20 +69,18 @@ class UserViewSet(viewsets.ModelViewSet):
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
     
     @action(detail=False, methods=['post'])
-    @method_decorator(csrf_exempt)
     def logout(self, request):
         """Выход пользователя."""
-        try:
-            logout(request)
-            response = Response({"detail": "Успешный выход из системы."})
-            response.delete_cookie('sessionid')
-            response.delete_cookie('csrftoken')
-            return response
-        except Exception as e:
+        if not request.user.is_authenticated:
             return Response(
-                {"detail": f"Ошибка при выходе из системы: {str(e)}"},
-                status=status.HTTP_500_INTERNAL_SERVER_ERROR
+                {"detail": "Пользователь не аутентифицирован."},
+                status=status.HTTP_401_UNAUTHORIZED
             )
+        
+        logout(request)
+        response = Response({"detail": "Успешный выход из системы."})
+        response.delete_cookie('sessionid')  # Удаляем cookie сессии
+        return response
     
     @action(detail=False, methods=['post'])
     def reset_password_request(self, request):
