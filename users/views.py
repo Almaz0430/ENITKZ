@@ -79,7 +79,8 @@ class UserViewSet(viewsets.ModelViewSet):
         
         logout(request)
         response = Response({"detail": "Успешный выход из системы."})
-        response.delete_cookie('sessionid')  # Удаляем cookie сессии
+        response.delete_cookie('sessionid')
+        response.delete_cookie('csrftoken')
         return response
     
     @action(detail=False, methods=['post'])
