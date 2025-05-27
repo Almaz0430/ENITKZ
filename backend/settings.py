@@ -134,6 +134,7 @@ USE_TZ = True
 STATIC_URL = '/static/'
 STATICFILES_DIRS = [
     os.path.join(BASE_DIR, 'backend', 'static', 'frontend'),  # здесь index.html и assets/
+    os.path.join(BASE_DIR, 'backend', 'static'),  # для других статических файлов
 ]
 
 # Настройки для обработки статических файлов
@@ -154,6 +155,7 @@ MIME_TYPES = {
     '.gif': 'image/gif',
     '.ico': 'image/x-icon',
     '.json': 'application/json',
+    '.webp': 'image/webp',
 }
 
 # Настройки WhiteNoise
