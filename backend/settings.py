@@ -13,6 +13,11 @@ https://docs.djangoproject.com/en/5.2/ref/settings/
 from pathlib import Path
 import os
 from datetime import timedelta
+from dotenv import load_dotenv
+from .security import apply_security_settings
+
+# Загрузка переменных окружения из .env файла
+load_dotenv()
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -22,13 +27,15 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 # See https://docs.djangoproject.com/en/5.2/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = 'django-insecure-zi+5%mcy&rhx0ex-p)4o!#a^e%52+8+aj-rk^i%+9ipjyovf8i'
+# Используем переменную окружения для SECRET_KEY или значение по умолчанию только для разработки
+SECRET_KEY = os.environ.get('DJANGO_SECRET_KEY', 'f7a5sd76f5a7sd6f5as7df65as7df65as7df65as7df65as7df')
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+# Используем переменную окружения для DEBUG или False по умолчанию для безопасности
+DEBUG = os.environ.get('DJANGO_DEBUG', '') == 'True'
 
-# Разрешаем все хосты для упрощения разработки
-ALLOWED_HOSTS = ['*']
+# Разрешаем только конкретные хосты
+ALLOWED_HOSTS = os.environ.get('ALLOWED_HOSTS', 'localhost,127.0.0.1').split(',')
 
 
 # Application definition
@@ -62,6 +69,12 @@ MIDDLEWARE = [
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
     'whitenoise.middleware.WhiteNoiseMiddleware',  # Добавляем WhiteNoise для обработки статики
+    'backend.middleware.SecurityHeadersMiddleware',  # Добавляем наш middleware для заголовков безопасности
+]
+
+# URL-адреса, для которых не требуется CSRF-защита
+CSRF_EXEMPT_URLS = [
+    # Добавьте сюда URL-адреса, если необходимо
 ]
 
 ROOT_URLCONF = 'backend.urls'
@@ -187,12 +200,9 @@ REST_FRAMEWORK = {
     'UNAUTHENTICATED_USER': None,
 }
 
-# Настройки CORS
-CORS_ALLOWED_ORIGINS = [
-    "http://localhost:5173",
-    "http://127.0.0.1:5173",
-    "https://web-production-f185.up.railway.app",
-]
+# Настройки CORS - исправлены для повышения безопасности
+CORS_ALLOWED_ORIGINS = os.environ.get('CORS_ALLOWED_ORIGINS', 'http://localhost:5173,http://127.0.0.1:5173').split(',')
+# Удалено CORS_ALLOW_ALL_ORIGINS = True или Access-Control-Allow-Origin: *
 CORS_ALLOW_CREDENTIALS = True
 CORS_ALLOW_METHODS = [
     'DELETE',
@@ -217,13 +227,9 @@ CORS_EXPOSE_HEADERS = ['Content-Type', 'X-CSRFToken']
 CORS_PREFLIGHT_MAX_AGE = 86400  # 24 часа
 
 # Настройки CSRF и сессий
-CSRF_TRUSTED_ORIGINS = [
-    "http://localhost:5173",
-    "http://127.0.0.1:5173",
-    "https://web-production-f185.up.railway.app",
-]
-CSRF_COOKIE_SAMESITE = 'None'
-SESSION_COOKIE_SAMESITE = 'None'
+CSRF_TRUSTED_ORIGINS = CORS_ALLOWED_ORIGINS  # Используем те же домены, что и для CORS
+CSRF_COOKIE_SAMESITE = 'Lax'  # Изменено с 'None' на 'Lax' для повышения безопасности
+SESSION_COOKIE_SAMESITE = 'Lax'  # Изменено с 'None' на 'Lax' для повышения безопасности
 CSRF_COOKIE_HTTPONLY = True
 CSRF_USE_SESSIONS = False
 CSRF_COOKIE_SECURE = True
@@ -249,4 +255,20 @@ EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'  # Для ра�
 DEFAULT_FROM_EMAIL = 'noreply@example.com'
 
 # URL фронтенда для формирования ссылок
-FRONTEND_URL = 'http://localhost:5173'  # Изменить на реальный URL в продакшене
+FRONTEND_URL = os.environ.get('FRONTEND_URL', 'http://localhost:5173')  # Используем переменную окружения
+
+# Дополнительные настройки безопасности
+SECURE_BROWSER_XSS_FILTER = True
+SECURE_CONTENT_TYPE_NOSNIFF = True
+X_FRAME_OPTIONS = 'SAMEORIGIN'
+SECURE_HSTS_SECONDS = 31536000  # 1 год
+SECURE_HSTS_INCLUDE_SUBDOMAINS = True
+SECURE_HSTS_PRELOAD = True
+REFERRER_POLICY = 'strict-origin-when-cross-origin'
+
+# Отключение отображения версий технологий
+SECURE_HIDE_POWERED_BY = True
+
+# Применение всех настроек безопасности из модуля security.py
+# Раскомментируйте эту строку для продакшн-окружения
+# globals().update(apply_security_settings(globals()))

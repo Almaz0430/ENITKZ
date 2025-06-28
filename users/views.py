@@ -79,7 +79,9 @@ class UserViewSet(viewsets.ModelViewSet):
         
         logout(request)
         response = Response({"detail": "Успешный выход из системы."})
-        response.delete_cookie('sessionid')  # Удаляем cookie сессии
+        # Безопасные настройки для удаления cookie
+        response.delete_cookie('sessionid', samesite='Lax', secure=True, httponly=True)
+        response.delete_cookie('csrftoken', samesite='Lax', secure=True, httponly=True)
         return response
     
     @action(detail=False, methods=['post'])
@@ -146,11 +148,15 @@ class UserViewSet(viewsets.ModelViewSet):
         login(request, user)
         
         headers = self.get_success_headers(serializer.data)
-        return Response(
+        response = Response(
             UserSerializer(user).data,
             status=status.HTTP_201_CREATED,
             headers=headers
         )
+        # Установка безопасных cookie
+        response.set_cookie('sessionid', request.session.session_key, 
+                           secure=True, httponly=True, samesite='Lax')
+        return response
 
     @action(detail=False, methods=['post'], permission_classes=[permissions.AllowAny])
     def login(self, request):
@@ -163,5 +169,8 @@ class UserViewSet(viewsets.ModelViewSet):
                 'user': UserSerializer(user).data,
                 'message': 'Успешный вход в систему'
             })
+            # Установка безопасных cookie
+            response.set_cookie('sessionid', request.session.session_key, 
+                               secure=True, httponly=True, samesite='Lax')
             return response
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
