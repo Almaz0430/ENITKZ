@@ -25,7 +25,7 @@ class SecurityHeadersMiddleware:
             "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com",
             "img-src 'self' data: https://*.unsplash.com https://*.googleapis.com",
             "font-src 'self' https://fonts.gstatic.com",
-            "connect-src 'self'",
+            "connect-src 'self' http://127.0.0.1:8000 https://web-production-eeb3.up.railway.app",
             "frame-src 'self' https://www.google.com",
             "form-action 'self'"
         ]
