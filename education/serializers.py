@@ -6,7 +6,7 @@ User = get_user_model()
 
 
 class UserBriefSerializer(serializers.ModelSerializer):
-    """Краткий сериализатор для модели пользователя."""
+    """Краткий сериализатор пользователя"""
     
     full_name = serializers.SerializerMethodField()
     
@@ -19,16 +19,12 @@ class UserBriefSerializer(serializers.ModelSerializer):
 
 
 class ProgramSerializer(serializers.ModelSerializer):
-    """Сериализатор для модели образовательной программы."""
-    
     class Meta:
         model = Program
         fields = '__all__'
 
 
 class AccreditationSerializer(serializers.ModelSerializer):
-    """Сериализатор для модели аккредитации."""
-    
     program_name = serializers.ReadOnlyField(source='program.name')
     
     class Meta:
@@ -37,8 +33,6 @@ class AccreditationSerializer(serializers.ModelSerializer):
 
 
 class PublicationSerializer(serializers.ModelSerializer):
-    """Сериализатор для модели публикации."""
-    
     authors = UserBriefSerializer(many=True, read_only=True)
     author_ids = serializers.PrimaryKeyRelatedField(
         queryset=User.objects.all(),
@@ -54,18 +48,13 @@ class PublicationSerializer(serializers.ModelSerializer):
 
 
 class MobilityProgramSerializer(serializers.ModelSerializer):
-    """Сериализатор для модели программы мобильности."""
-    
     class Meta:
         model = MobilityProgram
         fields = '__all__'
 
 
-# Расширенные сериализаторы для детального представления
-
+# Расширенные сериализаторы
 class ProgramDetailSerializer(serializers.ModelSerializer):
-    """Детальный сериализатор для модели образовательной программы."""
-    
     accreditations = AccreditationSerializer(many=True, read_only=True)
     
     class Meta:
@@ -74,8 +63,6 @@ class ProgramDetailSerializer(serializers.ModelSerializer):
 
 
 class AccreditationDetailSerializer(serializers.ModelSerializer):
-    """Детальный сериализатор для модели аккредитации."""
-    
     program = ProgramSerializer(read_only=True)
     
     class Meta:

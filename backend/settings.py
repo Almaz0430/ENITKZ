@@ -68,14 +68,12 @@ MIDDLEWARE = [
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
-    'whitenoise.middleware.WhiteNoiseMiddleware',  # Добавляем WhiteNoise для обработки статики
-    'backend.middleware.SecurityHeadersMiddleware',  # Добавляем наш middleware для заголовков безопасности
+    'whitenoise.middleware.WhiteNoiseMiddleware', 
+    'backend.middleware.SecurityHeadersMiddleware',
 ]
 
 # URL-адреса, для которых не требуется CSRF-защита
-CSRF_EXEMPT_URLS = [
-    # Добавьте сюда URL-адреса, если необходимо
-]
+CSRF_EXEMPT_URLS = []
 
 ROOT_URLCONF = 'backend.urls'
 
@@ -251,8 +249,8 @@ SPECTACULAR_SETTINGS = {
 }
 
 # Настройки для отправки электронной почты
-EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'  # Для разработки
-DEFAULT_FROM_EMAIL = 'noreply@example.com'
+EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
+DEFAULT_FROM_EMAIL = os.environ.get('DEFAULT_FROM_EMAIL', 'noreply@example.com')
 
 # URL фронтенда для формирования ссылок
 FRONTEND_URL = os.environ.get('FRONTEND_URL', 'http://localhost:5173')  # Используем переменную окружения
@@ -270,5 +268,4 @@ REFERRER_POLICY = 'strict-origin-when-cross-origin'
 SECURE_HIDE_POWERED_BY = True
 
 # Применение всех настроек безопасности из модуля security.py
-# Раскомментируйте эту строку для продакшн-окружения
-# globals().update(apply_security_settings(globals()))
+globals().update(apply_security_settings(globals()))

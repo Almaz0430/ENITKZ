@@ -18,27 +18,18 @@ class SecurityHeadersMiddleware:
     def __call__(self, request):
         response = self.get_response(request)
         
-        # 1. Content-Security-Policy (CSP)
+        # Установка заголовков безопасности
         response['Content-Security-Policy'] = "default-src 'self'; script-src 'self'; style-src 'self'; img-src 'self' data:; font-src 'self'; connect-src 'self'; frame-ancestors 'none'; form-action 'self';"
-        
-        # 2. X-Frame-Options (защита от clickjacking)
         response['X-Frame-Options'] = 'SAMEORIGIN'
-        
-        # 3. X-Content-Type-Options (предотвращение MIME-sniffing)
         response['X-Content-Type-Options'] = 'nosniff'
-        
-        # 4. Strict-Transport-Security (HSTS)
         response['Strict-Transport-Security'] = 'max-age=31536000; includeSubDomains'
         
-        # 5. Удаление X-Powered-By
         if 'X-Powered-By' in response:
             del response['X-Powered-By']
         
-        # 6. Cache-Control
         if not response.get('Cache-Control'):
             response['Cache-Control'] = 'no-store, no-cache, must-revalidate, max-age=0'
         
-        # 7. Referrer-Policy
         response['Referrer-Policy'] = 'strict-origin-when-cross-origin'
         
         return response 
