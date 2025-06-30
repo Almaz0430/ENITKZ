@@ -200,7 +200,7 @@ REST_FRAMEWORK = {
 }
 
 # Настройки CORS - исправлены для повышения безопасности
-CORS_ALLOWED_ORIGINS = os.environ.get('CORS_ALLOWED_ORIGINS', 'web-production-eeb3.up.railway.app').split(',')
+CORS_ALLOWED_ORIGINS = os.environ.get('CORS_ALLOWED_ORIGINS', 'https://web-production-eeb3.up.railway.app').split(',')
 
 CORS_ALLOW_CREDENTIALS = True
 CORS_ALLOW_METHODS = [
