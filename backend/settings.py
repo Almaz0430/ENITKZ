@@ -37,12 +37,6 @@ DEBUG = os.environ.get('DJANGO_DEBUG', '') == 'True'
 # Разрешаем только конкретные хосты
 ALLOWED_HOSTS = os.environ.get('ALLOWED_HOSTS', 'localhost,127.0.0.1').split(',')
 
-# Если приложение запущено на Railway, добавляем его домен в разрешенные хосты
-RAILWAY_PUBLIC_DOMAIN = os.environ.get('RAILWAY_PUBLIC_DOMAIN')
-if RAILWAY_PUBLIC_DOMAIN:
-    ALLOWED_HOSTS.append(RAILWAY_PUBLIC_DOMAIN)
-
-
 # Application definition
 
 INSTALLED_APPS = [
@@ -86,7 +80,7 @@ TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
         'DIRS': [
-            os.path.join(BASE_DIR, 'backend', 'static', 'frontend'),
+            os.path.join(BASE_DIR, 'backend', 'static'),
         ],
         'APP_DIRS': True,
         'OPTIONS': {
@@ -149,8 +143,7 @@ USE_TZ = True
 
 STATIC_URL = '/static/'
 STATICFILES_DIRS = [
-    os.path.join(BASE_DIR, 'backend', 'static', 'frontend'),  # здесь index.html и assets/
-    os.path.join(BASE_DIR, 'backend', 'static'),  # для других статических файлов
+    os.path.join(BASE_DIR, 'backend', 'static'),  # для статических файлов
 ]
 
 # Настройки для обработки статических файлов
@@ -176,6 +169,9 @@ MIME_TYPES = {
 
 # Настройки WhiteNoise
 STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
+
+# Настраиваем WhiteNoise для обслуживания файлов из директории assets напрямую
+WHITENOISE_ROOT = os.path.join(BASE_DIR, 'backend', 'static')
 
 STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')  # место, куда collectstatic всё соберет
 
@@ -204,11 +200,8 @@ REST_FRAMEWORK = {
 }
 
 # Настройки CORS - исправлены для повышения безопасности
-CORS_ALLOWED_ORIGINS = os.environ.get('CORS_ALLOWED_ORIGINS', 'http://localhost:5173,http://127.0.0.1:5173').split(',')
-# Если приложение запущено на Railway, добавляем его домен в разрешенные origin'ы
-if RAILWAY_PUBLIC_DOMAIN and f"https://{RAILWAY_PUBLIC_DOMAIN}" not in CORS_ALLOWED_ORIGINS:
-    CORS_ALLOWED_ORIGINS.append(f"https://{RAILWAY_PUBLIC_DOMAIN}")
-# Удалено CORS_ALLOW_ALL_ORIGINS = True или Access-Control-Allow-Origin: *
+CORS_ALLOWED_ORIGINS = os.environ.get('CORS_ALLOWED_ORIGINS', 'web-production-eeb3.up.railway.app').split(',')
+
 CORS_ALLOW_CREDENTIALS = True
 CORS_ALLOW_METHODS = [
     'DELETE',

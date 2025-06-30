@@ -18,8 +18,19 @@ class SecurityHeadersMiddleware:
     def __call__(self, request):
         response = self.get_response(request)
         
-        # Установка заголовков безопасности
-        response['Content-Security-Policy'] = "default-src 'self'; script-src 'self'; style-src 'self'; img-src 'self' data:; font-src 'self'; connect-src 'self'; frame-ancestors 'none'; form-action 'self';"
+        # Установка заголовков безопасности с более мягкими настройками для разработки
+        csp_directives = [
+            "default-src 'self'",
+            "script-src 'self' 'unsafe-inline' 'unsafe-eval'",
+            "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com",
+            "img-src 'self' data: https://*.unsplash.com https://*.googleapis.com",
+            "font-src 'self' https://fonts.gstatic.com",
+            "connect-src 'self'",
+            "frame-src 'self' https://www.google.com",
+            "form-action 'self'"
+        ]
+        
+        response['Content-Security-Policy'] = "; ".join(csp_directives)
         response['X-Frame-Options'] = 'SAMEORIGIN'
         response['X-Content-Type-Options'] = 'nosniff'
         response['Strict-Transport-Security'] = 'max-age=31536000; includeSubDomains'

@@ -23,6 +23,7 @@ from drf_spectacular.views import SpectacularAPIView, SpectacularRedocView, Spec
 from django.views.decorators.csrf import ensure_csrf_cookie
 from django.http import JsonResponse
 from django.views.generic import TemplateView
+import os
 
 from users.views import UserViewSet
 from education.views import (
@@ -63,3 +64,7 @@ urlpatterns = [
 if settings.DEBUG:
     urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
     urlpatterns += static(settings.STATIC_URL, document_root=settings.STATIC_ROOT)
+    # Добавляем маршрут для обслуживания файлов из директории assets напрямую
+    urlpatterns += static('/assets/', document_root=os.path.join(settings.BASE_DIR, 'backend', 'static', 'assets'))
+    # Добавляем маршрут для обслуживания файла vite.svg напрямую
+    urlpatterns += static('/vite.svg', document_root=os.path.join(settings.BASE_DIR, 'backend', 'static'))
