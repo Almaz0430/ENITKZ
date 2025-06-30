@@ -37,6 +37,11 @@ DEBUG = os.environ.get('DJANGO_DEBUG', '') == 'True'
 # Разрешаем только конкретные хосты
 ALLOWED_HOSTS = os.environ.get('ALLOWED_HOSTS', 'localhost,127.0.0.1').split(',')
 
+# Если приложение запущено на Railway, добавляем его домен в разрешенные хосты
+RAILWAY_PUBLIC_DOMAIN = os.environ.get('RAILWAY_PUBLIC_DOMAIN')
+if RAILWAY_PUBLIC_DOMAIN:
+    ALLOWED_HOSTS.append(RAILWAY_PUBLIC_DOMAIN)
+
 
 # Application definition
 
@@ -200,6 +205,9 @@ REST_FRAMEWORK = {
 
 # Настройки CORS - исправлены для повышения безопасности
 CORS_ALLOWED_ORIGINS = os.environ.get('CORS_ALLOWED_ORIGINS', 'http://localhost:5173,http://127.0.0.1:5173').split(',')
+# Если приложение запущено на Railway, добавляем его домен в разрешенные origin'ы
+if RAILWAY_PUBLIC_DOMAIN and f"https://{RAILWAY_PUBLIC_DOMAIN}" not in CORS_ALLOWED_ORIGINS:
+    CORS_ALLOWED_ORIGINS.append(f"https://{RAILWAY_PUBLIC_DOMAIN}")
 # Удалено CORS_ALLOW_ALL_ORIGINS = True или Access-Control-Allow-Origin: *
 CORS_ALLOW_CREDENTIALS = True
 CORS_ALLOW_METHODS = [
