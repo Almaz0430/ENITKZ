@@ -13,7 +13,8 @@
     "bologna": "Bologna Process",
     "accreditation": "Accreditation",
     "recognition": "Recognition",
-    "notFound": "Page Not Found"
+    "notFound": "Page Not Found",
+    "management": "Leadership"
   },
   "header": {
     "accessibility": "For visually impaired",
@@ -38,6 +39,30 @@
       "masterPublicAdmin": "Master of Public Administration",
       "techSciCandidate": "Candidate of Technical Sciences",
       "professor": "Professor"
+    },
+    "upcomingEvents": "Upcoming Events",
+    "viewAllEvents": "View All Events",
+    "events": {
+      "event1": {
+        "date": "December 15, 2025",
+        "title": "International Conference on the Bologna Process",
+        "location": "Astana, Kazakhstan"
+      },
+      "event2": {
+        "date": "January 20, 2025",
+        "title": "Educational Programs Accreditation Seminar",
+        "location": "Online"
+      },
+      "event3": {
+        "date": "February 5, 2025",
+        "title": "Webinar: Recognition of Foreign Qualifications",
+        "location": "Online"
+      },
+      "event4": {
+        "date": "March 15, 2025",
+        "title": "Academic Mobility Forum",
+        "location": "Almaty, Kazakhstan"
+      }
     }
   },
   "homePage": {
@@ -439,5 +464,9 @@
         "description": "Collegiality in management and decision-making"
       }
     }
+  },
+  "managementPage": {
+    "title": "Center Leadership",
+    "subtitle": "Information about the management team of the National Center for Higher Education Development"
   }
 }
